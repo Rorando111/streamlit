@@ -1,13 +1,13 @@
+%%writefile catApp.py
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
-import os
 
 # Load the model
-model_path = os.path.join(os.getcwd(), 'cat_classifier.h5')
-model = tf.keras.models.load_model(model_path)
+model = tf.keras.models.load_model('/content/drive/MyDrive/Finals Dataset/cat_classifier.h5')
 
 # Define the class names
 class_names = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
