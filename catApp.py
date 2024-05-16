@@ -1,4 +1,5 @@
 # catApp.py
+import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
@@ -10,17 +11,17 @@ def load_model(model_path):
         model = tf.keras.models.load_model(model_path)
         return model
     except Exception as e:
-        print(f"Error loading model: {e}")
+        st.error(f"Error loading model: {e}")
         return None
 
-def preprocess_image(image_path):
+def preprocess_image(image):
     try:
-        image = Image.open(image_path)
+        image = Image.open(image)
         image = image.resize((224, 224))
         image = np.array(image) / 255.0
         return image
     except Exception as e:
-        print(f"Error preprocessing image: {e}")
+        st.error(f"Error preprocessing image: {e}")
         return None
 
 def make_prediction(model, image):
@@ -29,15 +30,19 @@ def make_prediction(model, image):
         top_prediction = np.argmax(predictions)
         return top_prediction
     except Exception as e:
-        print(f"Error making prediction: {e}")
+        st.error(f"Error making prediction: {e}")
         return None
 
 def main():
-    print("Cat Breed Classifier")
-    print("Upload an image of a cat to classify its breed:")
+    st.title("Cat Breed Classifier")
+    st.write("Upload an image of a cat to classify its breed:")
 
     # Get the uploaded file
-    uploaded_file = input("Enter the file path: ")
+    uploaded_file = st.file_uploader("Choose a file", type=["jpg", "png"])
+
+    if uploaded_file is None:
+        st.write("Please upload an image file")
+        return
 
     # Load the model
     model = load_model('cat_classifier.h5')
@@ -50,9 +55,7 @@ def main():
         return
 
     # Display the uploaded image
-    plt.imshow(image)
-    plt.title("Uploaded Image")
-    plt.show()
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
     # Make predictions
     top_prediction = make_prediction(model, image)
@@ -64,4 +67,4 @@ def main():
                    'British Shorthair', 'Egyptian Mau', 'Maine Coon',
                    'Norweigian forest', 'Persian', 'Ragdoll',
                    'Russian Blue', 'Siamese', 'Sphynx']
-    print(f"Predicted breed: {class_names[top_prediction]}")
+    st.success(f"Predicted breed: {class_names[top_prediction]}")
