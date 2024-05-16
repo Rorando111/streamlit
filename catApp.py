@@ -1,5 +1,6 @@
 import streamlit as st
 import tensorflow as tf
+from tensorflow.keras.layers import BatchNormalization
 from PIL import Image, ImageOps
 import numpy as np
 from io import BytesIO
@@ -14,7 +15,8 @@ CLASS_NAMES = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
 @st.cache_resource
 def load_model() -> tf.keras.Model:
     """Load the cat breed classifier model"""
-    model = tf.keras.models.load_model('cat_classifier.h5')
+    custom_objects = {"BatchNormalization": BatchNormalization}
+    model = tf.keras.models.load_model('cat_classifier.h5', custom_objects=custom_objects)
     return model
 
 def import_and_resize_image(image_data: bytes) -> Image:
