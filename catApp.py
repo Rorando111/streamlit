@@ -1,45 +1,62 @@
-# catApp.py
-
 import streamlit as st
 import tensorflow as tf
+from PIL import Image, ImageOps
 import numpy as np
-from PIL import Image
-import io
+from io import BytesIO
 
-# Load the model
-@st.cache(allow_output_mutation=True)
-def load_model():
-    return tf.keras.models.load_model('cat_classifier.h5')
-
-model = load_model()
-
-# Define the class names
-class_names = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
+# Constants
+IMAGE_SIZE = (224, 224)
+CLASS_NAMES = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
                'British Shorthair', 'Egyptian Mau', 'Maine Coon',
-               'Norweigian forest', 'Persian', 'Ragdoll',
+               'Norwegian Forest', 'Persian', 'Ragdoll',
                'Russian Blue', 'Siamese', 'Sphynx']
 
-st.title("Cat Breed Classifier")
-st.write("Upload an image of a cat to classify its breed:")
+@st.cache_resource
+def load_model() -> tf.keras.Model:
+    """Load the cat breed classifier model"""
+    model = tf.keras.models.load_model('cat_classifier.h5')
+    return model
 
-uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "png"])
+def import_and_resize_image(image_data: bytes) -> Image:
+    """Import and resize the image"""
+    image = Image.open(BytesIO(image_data))  # Use BytesIO to create a file-like object
+    size = IMAGE_SIZE  # Define the size variable
+    image = ImageOps.fit(image, size, Image.LANCZOS)
+    return image
 
-if uploaded_file is not None:
-    # Read the uploaded file
-    image = Image.open(io.BytesIO(uploaded_file.getvalue()))
+def preprocess_image(image: Image) -> np.ndarray:
+    """Preprocess the image for prediction"""
+    img = np.asarray(image)
+    img = img[np.newaxis, ...]
+    return img
 
-    # Display the uploaded image
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+def make_prediction(image: np.ndarray, model: tf.keras.Model) -> np.ndarray:
+    """Make a prediction using the model"""
+    prediction = model.predict(image)
+    return prediction
 
-    # Preprocess the uploaded image
-    image = tf.image.resize(np.array(image), (224, 224))
-    image = image / 255.0
+def main():
+    st.write("""
+# Cat Breed Classifier
+""")
+    file = st.file_uploader("Choose a cat photo from your computer", type=["jpg", "png"])
 
-    # Make predictions
-    predictions = model.predict(image[None,...])
+    if file is None:
+        st.text("Please upload an image file")
+    else:
+        try:
+            # Read the image data from the UploadedFile object
+            image_data = file.read()
+            image = import_and_resize_image(image_data)
+            st.image(image, use_column_width=True)
+            preprocessed_image = preprocess_image(image)
+            model = load_model()
+            prediction = make_prediction(preprocessed_image, model)
+            class_index = np.argmax(prediction)
+            output_string = f"OUTPUT: {CLASS_NAMES[class_index]}"
+            st.success(output_string)
+        except Exception as e:
+            st.error(f"Error processing image: {e}")
 
-    # Get the top-1 prediction
-    top_prediction = np.argmax(predictions)
-
-    # Display the result
-    st.write(f"Predicted breed: {class_names[top_prediction]}")
+if __name__ == "__main__":
+    main()
