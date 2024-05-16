@@ -1,13 +1,12 @@
-%%writefile catApp.py
-
-import streamlit as st
+# catApp.py
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
+import matplotlib.pyplot as plt
 
 # Load the model
-model = tf.keras.models.load_model('/content/drive/MyDrive/Finals Dataset/cat_classifier.h5')
+model = tf.keras.models.load_model('cat_classifier.h5')
 
 # Define the class names
 class_names = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
@@ -15,14 +14,20 @@ class_names = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
                'Norweigian forest', 'Persian', 'Ragdoll',
                'Russian Blue', 'Siamese', 'Sphynx']
 
-st.title("Cat Breed Classifier")
-st.write("Upload an image of a cat to classify its breed:")
+def main():
+    print("Cat Breed Classifier")
+    print("Upload an image of a cat to classify its breed:")
 
-uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "png"])
+    # Get the uploaded file
+    uploaded_file = input("Enter the file path: ")
 
-if uploaded_file is not None:
     # Read the uploaded file
-    image = Image.open(io.BytesIO(uploaded_file.getvalue()))
+    image = Image.open(uploaded_file)
+
+    # Display the uploaded image
+    plt.imshow(image)
+    plt.title("Uploaded Image")
+    plt.show()
 
     # Preprocess the uploaded image
     image = tf.image.resize(np.array(image), (224, 224))
@@ -35,4 +40,7 @@ if uploaded_file is not None:
     top_prediction = np.argmax(predictions)
 
     # Display the result
-    st.write(f"Predicted breed: {class_names[top_prediction]}")
+    print(f"Predicted breed: {class_names[top_prediction]}")
+
+if __name__ == "__main__":
+    main()
