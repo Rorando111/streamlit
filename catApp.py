@@ -20,7 +20,7 @@ def load_model() -> tf.keras.Model:
 def import_and_resize_image(image_data: bytes) -> Image:
     """Import and resize the image"""
     image = Image.open(image_data)
-    image = ImageOps.fit(image_data, size, Image.LANCZOS)
+    image = ImageOps.fit(image_data, IMAGE_SIZE, Image.LANCZOS)
     return image
 
 def preprocess_image(image: Image) -> np.ndarray:
