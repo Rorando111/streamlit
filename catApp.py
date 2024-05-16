@@ -11,11 +11,22 @@ CLASS_NAMES = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
                'Norwegian Forest', 'Persian', 'Ragdoll',
                'Russian Blue', 'Siamese', 'Sphynx']
 
+class CustomBatchNormalization(tf.keras.layers.BatchNormalization):
+    def __init__(self, **kwargs):
+        super(CustomBatchNormalization, self).__init__(**kwargs)
+
+    def get_config(self):
+        config = super(CustomBatchNormalization, self).get_config()
+        # Add any custom configuration here
+        return config
+
 @st.cache_resource
 def load_model() -> tf.keras.Model:
     """Load the cat breed classifier model"""
     # Load the model from the saved format
-    model = tf.keras.models.load_model('cat_classifier.h5', custom_objects={"BatchNormalization": tf.keras.layers.BatchNormalization})
+    model_path = 'path/to/saved_cat_classifier.h5'
+    custom_objects = {'CustomBatchNormalization': CustomBatchNormalization}
+    model = tf.keras.models.load_model(model_path, custom_objects=custom_objects)
     return model
 
 def import_and_resize_image(image_data: bytes) -> Image:
