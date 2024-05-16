@@ -65,6 +65,3 @@ def main():
                    'Norweigian forest', 'Persian', 'Ragdoll',
                    'Russian Blue', 'Siamese', 'Sphynx']
     print(f"Predicted breed: {class_names[top_prediction]}")
-
-if __name__ == "__main__":
-    main()
