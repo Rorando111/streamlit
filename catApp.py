@@ -18,7 +18,15 @@ def load_model() -> tf.keras.Model:
     model = tf.keras.models.load_model('cat_classifier.h5')
     return model
 
-def import_and_resize_image(image_data: bytes) -> Image:
+def handle_file_upload() -> bytes:
+    """Handle file upload and return the file contents as bytes"""
+    file = st.file_uploader("Choose a cat photo from your computer", type=["jpg", "png"])
+    if file is None:
+        st.text("Please upload an image file")
+        return None
+    return file.getvalue()
+
+def process_image(image_data: bytes) -> Image:
     """Import and resize the image"""
     image = Image.open(BytesIO(image_data))  # Use BytesIO to create a file-like object
     size = IMAGE_SIZE  # Define the size variable
@@ -31,32 +39,30 @@ def preprocess_image(image: Image) -> np.ndarray:
     img = img[np.newaxis, ...]
     return img
 
-def make_prediction(image: np.ndarray, model: tf.keras.Model) -> np.ndarray:
+def make_prediction(image_data: np.ndarray, model: tf.keras.Model) -> np.ndarray:
     """Make a prediction using the model"""
-    prediction = model.predict(image)
+    prediction: np.ndarray = model.predict(image_data)
     return prediction
 
 def main():
     st.write("""
 # Cat Breed Classifier
 """)
-    file = st.file_uploader("Choose a cat photo from your computer", type=["jpg", "png"])
+    image_data = handle_file_upload()
+    if image_data is None:
+        return
 
-    if file is None:
-        st.text("Please upload an image file")
-    else:
-        try:
-            image = import_and_resize_image(file)
-            st.image(image, use_column_width=True)
-            image_data = preprocess_image(image)
-            model = load_model()
-            prediction = make_prediction(image_data, model)
-            class_index = np.argmax(prediction)
-            output_string = f"OUTPUT: {CLASS_NAMES[class_index]}"
-            st.success(output_string)
-        except Exception as e:
-            st.error(f"Error processing image: {e}")
+    try:
+        image = process_image(image_data)
+        st.image(image, use_column_width=True)
+        image_data = preprocess_image(image)
+        model = load_model()
+        prediction = make_prediction(image_data, model)
+        class_index = np.argmax(prediction)
+        output_string = f"OUTPUT: {CLASS_NAMES[class_index]}"
+        st.success(output_string)
+    except Exception as e:
+        st.error(f"Error processing image: {e}")
 
 if __name__ == "__main__":
     main()
-
