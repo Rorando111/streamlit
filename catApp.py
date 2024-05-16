@@ -15,7 +15,7 @@ CLASS_NAMES = ['Abyssinian', 'Bengal', 'Birman', 'Bombay',
 def load_model() -> tf.keras.Model:
     """Load the cat breed classifier model"""
     # Load the model from the saved format
-    model = tf.keras.models.load_model('saved_cat_classifier.h5', custom_objects={"BatchNormalization": tf.keras.layers.BatchNormalization})
+    model = tf.keras.models.load_model('cat_classifier.h5', custom_objects={"BatchNormalization": tf.keras.layers.BatchNormalization})
     return model
 
 def import_and_resize_image(image_data: bytes) -> Image:
