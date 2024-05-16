@@ -6,7 +6,7 @@ from PIL import Image
 import io
 
 # Load the model
-model = tf.keras.models.load_model('Rorando111/streamlit/blob/main/cat_classifier.h5')
+model = tf.keras.models.load_model('https://Rorando111/streamlit/blob/main/cat_classifier.h5')
 
 # Define the class names
 class_names = ['Abyssinian', 'Bengal', 'Birman', 'Bombay', 
