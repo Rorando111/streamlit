@@ -3,7 +3,6 @@ import tensorflow as tf
 import cv2
 from PIL import Image, ImageOps
 import numpy as np
-from io import BytesIO
 
 # Constants
 IMAGE_SIZE = (224, 224)
@@ -20,15 +19,14 @@ def load_model() -> tf.keras.Model:
 
 def import_and_resize_image(image_data: bytes) -> Image:
     """Import and resize the image"""
-    image = Image.open(BytesIO(image_data))
-    image = image.resize(IMAGE_SIZE)
+    image = Image.open(image_data)
+    image = ImageOps.fit(image_data, IMAGE_SIZE, Image.LANCZOS)
     return image
 
 def preprocess_image(image: Image) -> np.ndarray:
     """Preprocess the image for prediction"""
     img = np.asarray(image)
-    img = img / 255.0
-    img = img[np.newaxis,...]
+    img = img[np.newaxis, ...]
     return img
 
 def make_prediction(image: np.ndarray, model: tf.keras.Model) -> np.ndarray:
@@ -46,8 +44,7 @@ def main():
         st.text("Please upload an image file")
     else:
         try:
-            image_data = file.read()
-            image = import_and_resize_image(image_data)
+            image = import_and_resize_image(file)
             st.image(image, use_column_width=True)
             image_data = preprocess_image(image)
             model = load_model()
@@ -60,3 +57,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
