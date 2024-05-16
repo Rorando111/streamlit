@@ -3,6 +3,7 @@ import tensorflow as tf
 import cv2
 from PIL import Image, ImageOps
 import numpy as np
+from io import BytesIO
 
 # Constants
 IMAGE_SIZE = (224, 224)
@@ -19,8 +20,9 @@ def load_model() -> tf.keras.Model:
 
 def import_and_resize_image(image_data: bytes) -> Image:
     """Import and resize the image"""
-    image = Image.open(image_data)
-    image = ImageOps.fit(image_data, IMAGE_SIZE, Image.LANCZOS)
+    image = Image.open(BytesIO(image_data))  # Use BytesIO to create a file-like object
+    size = IMAGE_SIZE  # Define the size variable
+    image = ImageOps.fit(image, size, Image.LANCZOS)
     return image
 
 def preprocess_image(image: Image) -> np.ndarray:
